@@ -6,6 +6,15 @@
 # include <cctype>
 # include <limits>
 
+enum types {
+	NAN,
+	INF,
+	CHAR,
+	INT,
+	FLOAT,
+	DOUBLE
+};
+
 class Conversion {
 	private:
 		const std::string	_input;
@@ -16,13 +25,14 @@ class Conversion {
 
 		Conversion( void );
 
-
+		int typeInput( void );
 
 		void fromChar( void );
 		void fromInt( void );
 		void fromFloat( void );
 		void fromDouble( void );
 
+		std::string getInput( void ) const;
 		char getChar( void ) const;
 		int getInt( void ) const;
 		float getFloat( void ) const;

@@ -34,7 +34,12 @@ Conversion::~Conversion( void ) {
 
 /* Input handlers */
 
-
+int Conversion::typeInput( void ) {
+	if (this->getInput().compare("nan") == 0)
+		return (NAN);
+	else if (this->getInput().compare("inf") == 0 || this->getInput().compare("+inf") == 0 || this->getInput().compare("-inf") == 0)
+		return (INF);
+}
 
 /* Conversions */
 
@@ -46,27 +51,31 @@ void Conversion::fromChar( void ) {
 }
 
 void Conversion::fromInt( void ) {
-	this->_char = static_cast<char>(this->_input[0]);
 	this->_int = std::stoi(this->_input);
 	this->_float = static_cast<float>(this->_int);
 	this->_double = static_cast<double>(this->_int);
+	this->_char = static_cast<char>(this->_double);
 }
 
 void Conversion::fromFloat( void ) {
-	this->_char = static_cast<char>(this->_input[0]);
-	this->_int = static_cast<int>(this->_float);
 	this->_float = std::stof(this->_input);
+	this->_int = static_cast<int>(this->_float);
 	this->_double = static_cast<double>(this->_float);
+	this->_char = static_cast<char>(this->_double);
 }
 
 void Conversion::fromDouble( void ) {
-	this->_char = static_cast<char>(this->_input[0]);
+	this->_double = std::stod(this->_input);
 	this->_int = static_cast<int>(this->_double);
 	this->_float = static_cast<float>(this->_double);
-	this->_double = std::stod(this->_input);
+	this->_char = static_cast<char>(this->_double);
 }
 
 /* Getters */
+
+std::string Conversion::getInput( void ) const {
+	return this->_input;
+}
 
 char Conversion::getChar( void ) const {
 	return this->_char;
