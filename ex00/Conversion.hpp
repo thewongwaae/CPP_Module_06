@@ -7,12 +7,13 @@
 # include <limits>
 
 enum types {
-	NAN,
+	ENUM_NAN,
 	INF,
 	CHAR,
 	INT,
 	FLOAT,
-	DOUBLE
+	DOUBLE,
+	ERROR
 };
 
 class Conversion {

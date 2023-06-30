@@ -36,9 +36,17 @@ Conversion::~Conversion( void ) {
 
 int Conversion::typeInput( void ) {
 	if (this->getInput().compare("nan") == 0)
-		return (NAN);
-	else if (this->getInput().compare("inf") == 0 || this->getInput().compare("+inf") == 0 || this->getInput().compare("-inf") == 0)
+		return (ENUM_NAN);
+	else if (this->getInput().compare("inf") == 0 || this->getInput().compare("+inf") == 0
+		|| this->getInput().compare("-inf") == 0 || this->getInput().compare("+inff") == 0
+		|| this->getInput().compare("-inff") == 0)
 		return (INF);
+	else if (this->getInput().length() == 1 && !std::isdigit(this->getInput()[0]))
+		return (CHAR);
+	else if (this->getInput().find('.') != std::string::npos)
+		return (FLOAT);
+	else
+		return (INT);
 }
 
 /* Conversions */
