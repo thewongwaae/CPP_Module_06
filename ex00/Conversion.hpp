@@ -19,6 +19,7 @@ enum types {
 class Conversion {
 	private:
 		const std::string	_input;
+		int					_type;
 		char				_char;
 		int					_int;
 		float				_float;
@@ -26,7 +27,9 @@ class Conversion {
 
 		Conversion( void );
 
-		int typeInput( void );
+		void typeInput( void );
+		void convertInput( void );
+		void printOutput( void );
 
 		void fromChar( void );
 		void fromInt( void );
@@ -34,6 +37,7 @@ class Conversion {
 		void fromDouble( void );
 
 		std::string getInput( void ) const;
+		int getType( void ) const;
 		char getChar( void ) const;
 		int getInt( void ) const;
 		float getFloat( void ) const;

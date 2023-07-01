@@ -8,6 +8,9 @@ Conversion::Conversion( void ) {
 
 Conversion::Conversion( const std::string input ) : _input(input) {
 	std::cout << "Constructor called with input of " << input << std::endl;
+	this->typeInput();
+	this->convertInput();
+	this->printOutput();
 }
 
 Conversion::Conversion( const Conversion &copy ) {
@@ -19,6 +22,7 @@ Conversion &Conversion::operator=( const Conversion &assign ) {
 	if (this == &assign)
 		return *this;
 
+	this->_type = assign.getType();
 	this->_char = assign.getChar();
 	this->_int = assign.getInt();
 	this->_float = assign.getFloat();
@@ -32,21 +36,63 @@ Conversion::~Conversion( void ) {
 	std::cout << "Destructor called" << std::endl;
 }
 
-/* Input handlers */
+/* Input and output handlers */
 
-int Conversion::typeInput( void ) {
+void Conversion::typeInput( void ) {
 	if (this->getInput().compare("nan") == 0)
-		return (ENUM_NAN);
+		this->_type = ENUM_NAN;
 	else if (this->getInput().compare("inf") == 0 || this->getInput().compare("+inf") == 0
 		|| this->getInput().compare("-inf") == 0 || this->getInput().compare("+inff") == 0
 		|| this->getInput().compare("-inff") == 0)
-		return (INF);
+		this->_type = INF;
 	else if (this->getInput().length() == 1 && !std::isdigit(this->getInput()[0]))
-		return (CHAR);
+		this->_type = CHAR;
 	else if (this->getInput().find('.') != std::string::npos)
-		return (FLOAT);
+		this->_type = FLOAT;
 	else
-		return (INT);
+		this->_type = INT;
+}
+
+void Conversion::convertInput( void ) {
+	switch (this->_type)
+	{
+		case ENUM_NAN:
+			break;
+		case INF:
+			break;
+		case CHAR:
+			this->fromChar();
+			break;
+		case INT:
+			this->fromInt();
+			break;
+		case FLOAT:
+			this->fromFloat();
+			break;
+		case DOUBLE:
+			this->fromDouble();
+			break;
+		default:
+			throw Conversion::Exception();
+	}
+}
+
+void Conversion::printOutput( void ) {
+	if (this->_type == ENUM_NAN)
+		std::cout << "char: impossible" << std::endl
+			<< "int: impossible" << std::endl
+			<< "float: nanf" << std::endl
+			<< "double: nan" << std::endl;
+	else if (this->_type == INF)
+		std::cout << "char: impossible" << std::endl
+			<< "int: impossible" << std::endl
+			<< "float: " << this->_float << "f" << std::endl
+			<< "double: " << this->_double << std::endl;
+	else
+		std::cout << "char: '" << this->_char << "'" << std::endl
+			<< "int: " << this->_int << std::endl
+			<< "float: " << this->_float << "f" << std::endl
+			<< "double: " << this->_double << std::endl;
 }
 
 /* Conversions */
@@ -85,6 +131,10 @@ std::string Conversion::getInput( void ) const {
 	return this->_input;
 }
 
+int Conversion::getType( void ) const {
+	return this->_type;
+}
+
 char Conversion::getChar( void ) const {
 	return this->_char;
 }
@@ -104,5 +154,5 @@ double Conversion::getDouble( void ) const {
 /* Exception */
 
 const char *Conversion::Exception::what( void ) const throw() {
-	return "Error: Conversion error or unprintable character";
+	return "Error: Conversion error or unprintable character encountered";
 }
