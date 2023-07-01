@@ -2,13 +2,15 @@
 # define CONVERSION_H
 
 # include <iostream>
+# include <cstdlib>
 # include <string>
+# include <cstring>
 # include <cctype>
 # include <limits>
+# include <climits>
 
 enum types {
-	ENUM_NAN,
-	INF,
+	NAN_INF,
 	CHAR,
 	INT,
 	FLOAT,
@@ -27,7 +29,7 @@ class Conversion {
 
 		Conversion( void );
 
-		void typeInput( void );
+		int typeInput( void );
 		void convertInput( void );
 		void printOutput( void );
 

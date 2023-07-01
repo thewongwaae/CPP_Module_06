@@ -8,7 +8,8 @@ Conversion::Conversion( void ) {
 
 Conversion::Conversion( const std::string input ) : _input(input) {
 	std::cout << "Constructor called with input of " << input << std::endl;
-	this->typeInput();
+	this->_double = atof(this->getInput().c_str());
+	this->_type = this->typeInput();
 	this->convertInput();
 	this->printOutput();
 }
@@ -38,27 +39,49 @@ Conversion::~Conversion( void ) {
 
 /* Input and output handlers */
 
-void Conversion::typeInput( void ) {
-	if (this->getInput().compare("nan") == 0)
-		this->_type = ENUM_NAN;
-	else if (this->getInput().compare("inf") == 0 || this->getInput().compare("+inf") == 0
-		|| this->getInput().compare("-inf") == 0 || this->getInput().compare("+inff") == 0
-		|| this->getInput().compare("-inff") == 0)
-		this->_type = INF;
-	else if (this->getInput().length() == 1 && !std::isdigit(this->getInput()[0]))
-		this->_type = CHAR;
-	else if (this->getInput().find('.') != std::string::npos)
-		this->_type = FLOAT;
+int Conversion::typeInput( void ) {
+	const std::string& input = this->getInput();
+
+	if (input.compare("nan") == 0 || input.compare("+inf") == 0 || input.compare("-inf") == 0 ||
+		input.compare("+inff") == 0 || input.compare("-inff") == 0)
+		return NAN_INF;
+
+	if (input.length() == 1 && (input[0] == '+' || input[0] == '-' || input[0] == 'f' || input[0] == '.'))
+		return CHAR;
+
+	if (input.find_first_of("+-") != input.find_last_of("+-"))
+		return ERROR;
+
+	if (input.find_first_not_of("0123456789") == std::string::npos)
+		return INT;
+	else if (input.find_first_of(".") != std::string::npos)
+	{
+		if (input.find_last_of(".") == input.find_first_of(".") &&
+			isdigit(input[input.find_first_of(".") + 1]))
+			return DOUBLE;
+		else
+			return ERROR;
+	}
+	else if (input.find_first_of("f") != std::string::npos)
+	{
+		if (input.find_last_of("f") == input.find_first_of("f") &&
+			input.find_first_of(".") != input.find_last_of(".") &&
+			input.find_first_of("f") - input.find_first_of(".") == 1 &&
+			input[input.find_first_of(".") + 1] == '\0')
+			return FLOAT;
+		else
+			return ERROR;
+	}
+	else if (input.length() == 1 && std::isprint(input[0]))
+		return CHAR;
 	else
-		this->_type = INT;
+		return ERROR;
 }
 
 void Conversion::convertInput( void ) {
 	switch (this->_type)
 	{
-		case ENUM_NAN:
-			break;
-		case INF:
+		case NAN_INF:
 			break;
 		case CHAR:
 			this->fromChar();
@@ -78,51 +101,56 @@ void Conversion::convertInput( void ) {
 }
 
 void Conversion::printOutput( void ) {
-	if (this->_type == ENUM_NAN)
-		std::cout << "char: impossible" << std::endl
-			<< "int: impossible" << std::endl
-			<< "float: nanf" << std::endl
-			<< "double: nan" << std::endl;
-	else if (this->_type == INF)
-		std::cout << "char: impossible" << std::endl
-			<< "int: impossible" << std::endl
-			<< "float: " << this->_float << "f" << std::endl
-			<< "double: " << this->_double << std::endl;
+	if (this->getType() != NAN_INF && this->getDouble() <= UCHAR_MAX && this->getDouble() >= 0)
+		std::cout << "char: " << (isprint(this->getChar()) ? "'" + std::string(1, this->getChar()) + "'" : "Non displayable") << std::endl;
 	else
-		std::cout << "char: '" << this->_char << "'" << std::endl
-			<< "int: " << this->_int << std::endl
-			<< "float: " << this->_float << "f" << std::endl
-			<< "double: " << this->_double << std::endl;
+		std::cout << "char: impossible" << std::endl;
+
+	if (this->getType() != NAN_INF && this->getDouble() >= std::numeric_limits<int>::min() && this->getDouble() <= std::numeric_limits<int>::max())
+		std::cout << "int: " << this->getInt() << std::endl;
+	else
+		std::cout << "int: impossible" << std::endl;
+
+	if (this->getType() != NAN_INF)
+		std::cout << "float: " << this->getFloat() << (this->getFloat() - this->getInt() == 0 ? ".0f" : "f") << std::endl;
+	else if (this->getInput() == "nan" || this->getInput() == "nanf")
+		std::cout << "float: nanf" << std::endl;
+	else
+		std::cout << "float: " << (this->getInput()[0] == '+' ? "+inff" : "-inff") << std::endl;
+
+	if (this->getType() != NAN_INF)
+		std::cout << "double: " << this->getDouble() << (this->getDouble() < std::numeric_limits<int>::min() || this->getDouble() > std::numeric_limits<int>::max() || this->getDouble() - this->getInt() == 0 ? ".0" : "") << std::endl;
+	else if (this->getInput() == "nan" || this->getInput() == "nanf")
+		std::cout << "double: nan" << std::endl;
+	else
+		std::cout << "double: " << (this->getInput()[0] == '+' ? "+inf" : "-inf") << std::endl;
 }
 
 /* Conversions */
 
 void Conversion::fromChar( void ) {
-	this->_char = this->_input[0];
-	this->_int = static_cast<int>(this->_char);
-	this->_float = static_cast<float>(this->_char);
-	this->_double = static_cast<double>(this->_char);
+	this->_char = static_cast<unsigned char>(this->getInput()[0]);
+	this->_int = static_cast<int>(this->getChar());
+	this->_float = static_cast<float>(this->getChar());
+	this->_double = static_cast<double>(this->getChar());
 }
 
 void Conversion::fromInt( void ) {
-	this->_int = std::stoi(this->_input);
-	this->_float = static_cast<float>(this->_int);
-	this->_double = static_cast<double>(this->_int);
-	this->_char = static_cast<char>(this->_double);
+	this->_int = static_cast<int>(this->getDouble());
+	this->_char = static_cast<unsigned char>(this->getInt());
+	this->_float = static_cast<float>(this->getDouble());
 }
 
 void Conversion::fromFloat( void ) {
-	this->_float = std::stof(this->_input);
-	this->_int = static_cast<int>(this->_float);
-	this->_double = static_cast<double>(this->_float);
-	this->_char = static_cast<char>(this->_double);
+	this->_float = static_cast<float>(this->getDouble());
+	this->_char = static_cast<char>(this->getFloat());
+	this->_int = static_cast<int>(this->getFloat());
 }
 
 void Conversion::fromDouble( void ) {
-	this->_double = std::stod(this->_input);
-	this->_int = static_cast<int>(this->_double);
-	this->_float = static_cast<float>(this->_double);
-	this->_char = static_cast<char>(this->_double);
+	this->_char = static_cast<char>(this->getDouble());
+	this->_int = static_cast<int>(this->getDouble());
+	this->_float = static_cast<float>(this->getDouble());
 }
 
 /* Getters */
