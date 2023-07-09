@@ -46,13 +46,13 @@ int Conversion::typeInput( void ) {
 		input.compare("+inff") == 0 || input.compare("-inff") == 0)
 		return NAN_INF;
 
-	if (input.length() == 1 && (input[0] == '+' || input[0] == '-' || input[0] == 'f' || input[0] == '.'))
+	if (input.length() == 1 && (input[0] == '+' || input[0] == '-' || input[0] == 'f' || input[0] == '.') && std::isprint(input[0]))
 		return CHAR;
 
 	if (input.find_first_of("+-") != input.find_last_of("+-"))
 		return ERROR;
 
-	if (input.find_first_not_of("0123456789") == std::string::npos)
+	if (input.find_first_not_of("0123456789-") == std::string::npos)
 		return INT;
 	else if (input.find_first_of(".") != std::string::npos)
 	{
@@ -72,8 +72,6 @@ int Conversion::typeInput( void ) {
 		else
 			return ERROR;
 	}
-	else if (input.length() == 1 && std::isprint(input[0]))
-		return CHAR;
 	else
 		return ERROR;
 }
