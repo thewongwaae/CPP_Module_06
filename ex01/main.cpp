@@ -1,39 +1,26 @@
 #include <iostream>
 #include "Serializer.hpp"
 
-int main() {
-    // Create a Data object
-    Data data;
-    data.name = "John";
-    data.age = 30;
-    data.next = NULL;
+int main( void ) {
+	Data data;
+	Serializer serial;
 
-    // Print the original data
-    std::cout << "Original Data:" << std::endl;
-    std::cout << "Name: " << data.name << std::endl;
-    std::cout << "Age: " << data.age << std::endl;
-    std::cout << "Next: " << data.next << std::endl;
+	data.name = "Something";
+	data.age = 1;
 
-    // Create a Serializer object
-    Serializer serializer;
+	std::cout << "\n\033[35mOriginal Data: Name[" << data.name
+			<< "] Age[" << data.age << "]\033[0m"
+			<< std::endl;
 
-    // Serialize the Data object
-    uintptr_t serializedData = serializer.serialize(&data);
+	uintptr_t serialized = serial.serialize(&data);
 
-    // Print the serialized data
-    std::cout << "Serialized Data: " << serializedData << std::endl;
+	Data *deserial = serial.unserialize(serialized);
 
-    // Unserialize the serialized data
-    Data *unserializedData = serializer.unserialize(serializedData);
+	std::cout << "\033[36mDeserialized Data: Name[" << deserial->name
+			<< "] Age[" << deserial->age << "]\033[0m\n"
+			<< std::endl;
 
-    // Print the unserialized data
-    std::cout << "Unserialized Data:" << std::endl;
-    std::cout << "Name: " << unserializedData->name << std::endl;
-    std::cout << "Age: " << unserializedData->age << std::endl;
-    std::cout << "Next: " << unserializedData->next << std::endl;
-
-    // Free the memory allocated for the unserialized data
-    delete unserializedData;
-
-    return 0;
+	std::cout << "\033[35mOriginal Address: " << &data << "\033[0m" << std::endl;
+	std::cout << "\033[36mDeserialized Adress: " << deserial <<  "\033[0m" << std::endl;
+	std::cout << std::endl;
 }
